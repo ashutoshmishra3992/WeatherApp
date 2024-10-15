@@ -1,6 +1,5 @@
 import React from 'react';
 import {StyleSheet, Text, View} from 'react-native';
-import Icon from '@react-native-vector-icons/fontawesome6';
 
 const WeatherView = ({weather}) => (
   <View style={styles.container}>
@@ -11,7 +10,6 @@ const WeatherView = ({weather}) => (
     <Text style={styles.weatherTypeText}>{weather.type}</Text>
     <View style={styles.minMaxTemperatureContainer}>
       <View>
-        <Icon name={'caret-up'} size={30} iconStyle={'solid'} />
         <Text style={styles.minMaxTemperatureText}>{weather.maxTemperature}°</Text>
       </View>
       <View>
