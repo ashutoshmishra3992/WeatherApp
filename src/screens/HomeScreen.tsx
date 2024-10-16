@@ -2,19 +2,29 @@ import React, {useEffect, useState} from 'react';
 
 import {
   View,
-  StyleSheet, Text, SafeAreaView,
+  StyleSheet, Text, SafeAreaView, Button,
 } from 'react-native';
 
 import Geolocation from '@react-native-community/geolocation';
 import {WeatherData} from '../WeatherData.tsx';
 import WeatherView from '../components/WeatherView.tsx';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation, route}) => {
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
 
   const fetchWeatherData = async (latitude: number, longitude: number) => {
     try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=7b52ce875ce158f7babd4461f165cc79`;
+      const url = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=7b52ce875ce158f7babd4461f165cc79`;
+      const res = await fetch(url);
+      return await res.json();
+    } catch (error) {
+      return error;
+    }
+  };
+
+  const fetchWeatherDataByCity = async (city: string) => {
+    try {
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=7b52ce875ce158f7babd4461f165cc79`;
       const res = await fetch(url);
       return await res.json();
     } catch (error) {
@@ -52,15 +62,24 @@ const HomeScreen = () => {
   };
 
   useEffect(() => {
-    Geolocation.getCurrentPosition(info => {
-      fetchWeatherData(info.coords.latitude, info.coords.longitude)
+    if (route.params?.city === 'Default') {
+      Geolocation.getCurrentPosition(info => {
+        fetchWeatherData(info.coords.latitude, info.coords.longitude)
+          .then(r => {
+            console.log(r);
+            setWeatherData(extractWeatherData(r));
+          })
+          .catch(e => console.log(e));
+      });
+    } else {
+      fetchWeatherDataByCity(route.params?.city)
         .then(r => {
           console.log(r);
           setWeatherData(extractWeatherData(r));
         })
         .catch(e => console.log(e));
-    });
-  }, []);
+    }
+  }, [route.params?.city]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -70,6 +89,9 @@ const HomeScreen = () => {
         ) : (
           <Text style={styles.text}>Loading..</Text>
         )}
+      </View>
+      <View>
+        <Button title={'Search'} onPress={() => navigation.navigate('Search')}/>
       </View>
     </SafeAreaView>
   );
